@@ -1,1 +1,1 @@
-This is a README.md file.
+This is a respository for Climate 410. It is a place for in class activity and homework.
