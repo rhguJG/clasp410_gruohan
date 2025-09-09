@@ -58,6 +58,6 @@ def compare_warming():
     ax.legend(loc='best')
     ax.set_xlabel('Year')
     ax.set_ylabel('Surface Temperature ($K$)')
-    ax.set_title('Do Solar Force affect global warming?')
+    ax.set_title('Does Solar Force affect global warming?')
 
     fig.tight_layout()
