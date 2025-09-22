@@ -15,9 +15,24 @@ sigma = 5.67E-8  #Units: W/m2/K-4
 
 def n_layer_atmos(nlayers, epsilon=1, albedo=0.33, s0=1350, debug=False):
     '''
-    docstring
-    '''
+    Solve the N-layer atmosphere problem.
 
+    Parameters:
+        nlayers : int
+            Number of atmospheric layers.
+        epsilon : float
+            Emissivity of each layer, defaulted to 1.
+        albedo : float
+            Planetary albedo, defaulted to 1.
+        s0 : float
+            Solar irradiance [W/m^2], defaulted to 1350.
+        debug : bool
+            If True, print matrices.
+    
+    Returns:
+        temps : ndarray
+            Temperatures [fluxes] of surface and layers.
+    '''
 
     # Create array of coefficients, an N+1xN+1 array:
     A = np.zeros([nlayers+1, nlayers+1])
@@ -40,6 +55,7 @@ def n_layer_atmos(nlayers, epsilon=1, albedo=0.33, s0=1350, debug=False):
     # Get solution:
     fluxes = np.matmul(Ainv, b)
 
-    # Turn fluxes into temperatures
-    # Return temperatures to caller.
-    # VERIFY!
+    temps = np.zeros_like(fluxes)
+    temps[0] = np.power((fluxes[0] / sigma), 1/4)
+    temps[1:] = np.power(fluxes[1:] / (sigma * epsilon), 1/4)
+    return temps
