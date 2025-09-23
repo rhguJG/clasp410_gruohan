@@ -3,8 +3,12 @@
 '''
 This files solves the N-layer atmosphere problem for Lab 01 and all subparts.
 
-TO REPRODUCE THE VALUES AND PLOPTS IN MY REPORT, DO THIS:
-<tbd>
+Reproducibility
+---------------
+- Q3 figures: run `figs = question_3()` then `figs["exp1"].show()`,
+  `figs["exp2"].show()`, and `figs["profile"].show()`.
+- Q4 figure:  run `n_layer_atmos_venus()` (returns the inferred N and plots Ts vs N).
+- Q5 figure:  run `nuclear_winter()` (plots altitude vs temperature).
 '''
 
 import numpy as np
@@ -18,6 +22,7 @@ sigma = 5.67E-8  #Units: W/m2/K-4
 def n_layer_atmos(nlayers, epsilon=1, albedo=0.33, s0=1350, debug=False):
     '''
     Solve the N-layer atmosphere problem.
+    To use this, run temps = n_layor_atmos(6, epsilon = 0.8)
 
     Parameters:
         nlayers : int
@@ -67,10 +72,13 @@ def question_3():
     '''
     This code answers Quetsion 3 from Lab. It contains 2 separate experiments and generate three figures.
 
-    Returns:
-        figs: Plot
-            Show the plots for each of the experiment and question.
-    
+    Returns
+    figs : dict[str, matplotlib.figure.Figure]
+        Dictionary of figure handles:
+          - "exp1"    : Ts vs epsilon (N = 1)
+          - "exp2"    : Ts vs N       (epsilon = 0.255)
+          - "profile" : altitude vs temperature for the best (epsilon, N)
+
     To use this code, run figs = question_3()
     For displaying plot for experiment 1, run figs["exp1"].show()
     For displaying plot for experiment 2, run figs["exp2"].show()
@@ -138,6 +146,7 @@ def question_3():
 def n_layer_atmos_venus(target_ts=700, epsilon=1, albedo=0.75, s0=2600):
     '''
     Solve the N-layer atmosphere problem.
+    To use this code, just run n_layer_atmos_venus()
 
     Parameters:
         target_ts : int
@@ -196,6 +205,11 @@ def nuclear_winter(nlayers=5, epsilon=0.5, albedo=0.33, s0=1350):
             Planetary albedo, defaulted to 0.33.
         s0 : float
             Solar irradiance, defaulted to 1350.
+    
+    Returns:
+        None
+            Plots altitude (layer index) vs temperature (K).
+            The surface temperature can be read from the first point (index 0).
     '''
 
     # Create array of coefficients, an N+1xN+1 array:
