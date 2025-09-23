@@ -59,6 +59,19 @@ def time_to_temp(T_final, T_init = 90, T_env = 20.0, k = 1/300.):
 
     return t
 
+def euler_coffee():
+    '''
+    Solve the cooling equation using Euler's method.
+    '''
+    time = np.arange(0, t_final, dt)
+    temp = np.zeros(time.size)
+    temp[0] = T_init
+
+    # Solve!
+    for i in range(time.size - 1):
+        temp[i+1] = temp[i] + dt * k * (temp[i] - T_env)
+
+    return time, temp
 
 def verify_code():
     '''
@@ -91,6 +104,7 @@ temp2 = solve_temp(t, T_init = 85.)
 fig, ax = plt.subplots(1, 1)
 ax.plot(t, temp1, label = f'Add Cream Later (T={t_1:.1f}s)')
 ax.plot(t, temp2, label = f'Add Cream Now (T={t_2:.1f}s)')
+ax.plot(t)
 
 ax.legend()
 ax.set_xlabel('Time (s)')
