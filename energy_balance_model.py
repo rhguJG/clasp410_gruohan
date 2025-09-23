@@ -122,15 +122,14 @@ def question_3():
     print(f"[Exp2] With ε={fixed_eps}, need N ≈ {N_best} layers to get Ts ≈ {Ts_best2:.2f} K.")
     figs["exp2"] = fig2
 
-    # Altitude profile for best N
     temps_profile = n_layer_atmos(N_best, epsilon=fixed_eps)
-    altitudes = np.arange(0, len(temps_profile)*8, 8)  # Assume 8 km spacing
+    altitude = range(0, N_best+1)
 
     fig3, ax3 = plt.subplots(1, 1, figsize=(8,8))
 
-    ax3.plot(temps_profile, altitudes, 'o-')
+    ax3.plot(temps_profile, altitude, 'o-')
     ax3.set_xlabel("Temperature (K)")
-    ax3.set_ylabel("Altitude (km)")
+    ax3.set_ylabel("Altitude (layer)")
     ax3.set_title(f"Experiment 2: Altitude Profile (ε={fixed_eps}, N={N_best})")
     figs["profile"] = fig3
 
@@ -222,10 +221,10 @@ def nuclear_winter(nlayers=5, epsilon=0.5, albedo=0.33, s0=1350):
     temps[0] = np.power((fluxes[0] / sigma), 1/4)
     temps[1:] = np.power(fluxes[1:] / (sigma * epsilon), 1/4)
 
-    altitudes = np.arange(0, (len(temps))*8, 8)  # 8 km spacing
+    altitudes = np.arange(0, len(temps))
     plt.plot(temps, altitudes, 'o-')
     plt.xlabel("Temperature (K)")
-    plt.ylabel("Altitude (km)")
+    plt.ylabel("Altitude (layer)")
     plt.title("Nuclear Winter: 5 layers, ε=0.5, S0=1350")
     plt.grid(True)
     plt.show()
