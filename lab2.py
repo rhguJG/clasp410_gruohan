@@ -116,44 +116,217 @@ def solve_rk8(func, N1_init=0.3, N2_init=0.6, dT=10, t_final=100.0, a=1, b=2, c=
 
 
 ## LAB QUESTIONS
-N = [0.3, 0.6]
-Tfinal = 100
+def question_1(dt_comp, dt_pred, max_step=10):
+    '''
+    Reproduce the lab's **Question 1** comparison figure.
 
-# Competition
-tE_c, N1E_c, N2E_c = euler_solve(dNdt_comp, *N, dT=0.05, t_final=Tfinal)
-tR_c, N1R_c, N2R_c = solve_rk8(dNdt_comp, *N, t_final=Tfinal)
+    Runs both solvers on the competition model (Euler step `dt_comp`)
+    and on the predator-prey model (Euler step `dt_pred`) for 100 years,
+    and plots side-by-side time series with RK8 overlays.
 
-# Plot
-fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-ax = axes[0]
-ax.plot(tE_c, N1E_c, label=r'$N_1$ Euler', lw=2, color='blue')
-ax.plot(tE_c, N2E_c, label=r'$N_2$ Euler', lw=2, color='red')
-ax.plot(tR_c, N1R_c, linestyle=':', lw=3, color='blue', label=r'$N_1$ RK8')
-ax.plot(tR_c, N2R_c, linestyle=':', lw=3, color='red', label=r'$N_2$ RK8')
-ax.set_title("Lotka-Volterra Competition Model")
-ax.set_xlabel("Time (years)")
-ax.set_ylabel("Population/Carrying Cap.")
-ax.legend(loc='upper left', frameon=True)
-ax.text(0.98, -0.12, "Coefficients: a=1, b=2, c=1, d=3",
-        ha='right', va='top', transform=ax.transAxes)
+    Parameters
+    ----------
+    dt_comp : float
+        Euler time step for the competition model.
+    dt_pred : float
+        Euler time step for the predator-prey model.
+    max_step : float, optional
+        RK8 for both panels.
+
+    Returns
+    -------
+    None
+        Displays the two-panel figure.
+
+    Examples Usage
+    --------
+    # Lab default
+    question_1(dt_comp=1.0, dt_pred=0.05, max_step=10)
+    # Coarser Euler to demonstrate instability
+    question_1(dt_comp=2.0, dt_pred=0.20, max_step=10)
+    # Finer Euler to reduce error
+    question_1(dt_comp=0.2, dt_pred=0.01, max_step=10)
+    '''
+    N = [0.3, 0.6]
+    Tfinal = 100
+
+    # Competition
+    tE_c, N1E_c, N2E_c = euler_solve(dNdt_comp, *N, dT=dt_comp, t_final=Tfinal)
+    tR_c, N1R_c, N2R_c = solve_rk8(dNdt_comp, *N, dT=max_step, t_final=Tfinal)
+
+    # Plot
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    ax = axes[0]
+    ax.plot(tE_c, N1E_c, label=r'$N_1$ Euler', lw=2, color='blue')
+    ax.plot(tE_c, N2E_c, label=r'$N_2$ Euler', lw=2, color='red')
+    ax.plot(tR_c, N1R_c, linestyle=':', lw=3, color='blue', label=r'$N_1$ RK8')
+    ax.plot(tR_c, N2R_c, linestyle=':', lw=3, color='red', label=r'$N_2$ RK8')
+    ax.set_title("Lotka-Volterra Competition Model")
+    ax.set_xlabel("Time (years)")
+    ax.set_ylabel("Population/Carrying Cap.")
+    ax.legend(loc='upper left', frameon=True)
+    ax.text(0.98, -0.12, "Coefficients: a=1, b=2, c=1, d=3",
+            ha='right', va='top', transform=ax.transAxes)
 
 
-# Predator–Prey
-tE_p, N1E_p, N2E_p = euler_solve(dNdt_predprey, *N, dT=0.05, t_final=Tfinal)
-tR_p, N1R_p, N2R_p = solve_rk8(dNdt_predprey, *N, t_final=Tfinal)
+    # Predator–Prey
+    tE_p, N1E_p, N2E_p = euler_solve(dNdt_predprey, *N, dT=dt_pred, t_final=Tfinal)
+    tR_p, N1R_p, N2R_p = solve_rk8(dNdt_predprey, *N, dT=max_step, t_final=Tfinal)
 
-# Plot
-ax = axes[1]
-ax.plot(tE_p, N1E_p, label=r'$N_1$ (Prey) Euler', lw=2, color='blue')
-ax.plot(tE_p, N2E_p, label=r'$N_2$ (Predator) Euler', lw=2, color='red')
-ax.plot(tR_p, N1R_p, linestyle=':', lw=3, color='blue', label=r"$N_1$ (Prey) RK8")
-ax.plot(tR_p, N2R_p, linestyle=':', lw=3, color='red', label=r"$N_2$ (Predator) RK8")
-ax.set_title("Lotka-Volterra Predator-Prey Model")
-ax.set_xlabel("Time (years)")
-ax.set_ylabel("Population/Carrying Cap.")
-ax.legend(loc='upper left', frameon=True)
+    # Plot
+    ax = axes[1]
+    ax.plot(tE_p, N1E_p, label=r'$N_1$ (Prey) Euler', lw=2, color='blue')
+    ax.plot(tE_p, N2E_p, label=r'$N_2$ (Predator) Euler', lw=2, color='red')
+    ax.plot(tR_p, N1R_p, linestyle=':', lw=3, color='blue', label=r"$N_1$ (Prey) RK8")
+    ax.plot(tR_p, N2R_p, linestyle=':', lw=3, color='red', label=r"$N_2$ (Predator) RK8")  
+    ax.set_title("Lotka-Volterra Predator-Prey Model")
+    ax.set_xlabel("Time (years)")
+    ax.set_ylabel("Population/Carrying Cap.")
+    ax.legend(loc='upper left', frameon=True)
 
-fig.tight_layout()
+    fig.tight_layout()
 
-# plt.show()
+    plt.show()
 
+def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
+    """
+    Plot competition time series for multiple parameter/initial condition sets on one axes.
+
+    Parameters
+    ----------
+    a, b, c, d : sequence[float]
+        Lists (or tuples) of parameters, one set per curve group.
+    n : sequence[tuple(float, float)]
+        List of initial conditions `[(N1_0, N2_0), ...]`, same length as `a`.
+    T : float, optional
+        Total integration time (years).
+    dt : float, optional
+        Euler step (years).
+
+    Returns
+    -------
+    None
+        Displays a single figure with paired N_1 and N_2 lines per case.
+        Each pair shares a color; legend shows the initial values.
+    
+    Examples Usage
+    --------
+    To reproduce plot 7, run:
+    a=[1.0,1.0,1.0]
+    b=[0.5,0.5,0.5]
+    c=[1.0,1.0,1.0]
+    d=[0.6,0.6,0.6]
+    n=[(0.2,0.8),(0.3,0.6),(0.8,0.2)]
+
+    To reproduce plot 8, run:
+    a=[1.2,1.0,1.0]
+    b=[0.6,0.3,0.95]
+    c=[0.8,1.5,1.0]
+    d=[0.4,0.9,0.9]
+    n=[(0.3,0.6),(0.3,0.6),(0.3,0.6)]
+    """
+    for (ai, bi, ci, di, ni) in zip(a, b, c, d, n):
+        N1_init, N2_init = ni
+        t_e, N1_e, N2_e = euler_solve(dNdt_comp, N1_init, N2_init, dT=dt, t_final=T,
+                                    a=ai, b=bi, c=ci, d=di)
+        # t_r, N1_r, N2_r = solve_rk8(dNdt_comp, N1_init, N2_init, dT=dt, t_final=T,
+                                # a=ai, b=bi, c=ci, d=di)
+
+
+        # Plot
+        line1, = plt.plot(t_e, N1_e, label=f'$N_1$={N1_init}', lw=2)
+        color = line1.get_color()
+        plt.plot(t_e, N2_e, label=f'$N_2$={N2_init} ', color = color, lw=2)
+        # plt.plot(t_r, N1_r, linestyle=':', lw=3, label=r'$N_1$ RK8')
+        # plt.plot(t_r, N2_r, linestyle=':', lw=3, label=r'$N_2$ RK8')
+    plt.title("Lotka-Volterra Competition Model")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Population/Carrying Cap.")
+    plt.legend(loc='upper right', frameon=True)
+    fig = plt.gcf()
+    fig.tight_layout(rect=[0, 0.08, 1, 1])
+    fig.text(0.98, 0.02, f"Coefficients: a={a}, b={b}, c={c}, d={d}",
+            ha='right', va='bottom')
+
+    plt.show()
+
+def prey_and_predator_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.1):
+    """
+    Plot predator and prey time series (Euler & RK8) and the **phase diagram**.
+
+    Parameters
+    ----------
+    a, b, c, d : float
+        Model coefficients.
+    n : tuple(float, float), optional
+        Initial condition `(N1_0, N2_0)` = (prey, predator).
+    T : float, optional
+        Total integration time (years).
+    dt : float, optional
+        Euler step for the time-series panel; also used as RK8 `max_step`.
+
+    Returns
+    -------
+    None
+        Shows two figures:
+        (1) time series with Euler and RK8,
+        (2) phase diagram with trajectories, start/end markers, and nullclines.
+
+    Example Usage
+    -------------
+    To reproduce plot 9 & 10, run
+    prey_and_predator_plot(1, 2, 1, 3, n=(0.30, 0.60), T=100, dt=0.02)
+    To reproduce plot 11 & 12, run
+    prey_and_predator_plot(1, 2, 1, 3, n=(0.60, 0.30), T=100, dt=0.02)
+    To reproduce plot 13 & 14, run
+    prey_and_predator_plot(1.4, 2, 1, 3, n=(0.30, 0.60), T=100, dt=0.02)
+    To reproduce plot 15 & 16, run
+    prey_and_predator_plot(1, 2, 1.5, 3, n=(0.30, 0.60), T=100, dt=0.02)
+
+    """
+    N1_init, N2_init = n
+    t_e, N1_e, N2_e = euler_solve(dNdt_predprey, N1_init, N2_init, dT=dt, t_final=T,
+                                a=a, b=b, c=c, d=d)
+    t_r, N1_r, N2_r = solve_rk8(dNdt_predprey, N1_init, N2_init, dT=dt, t_final=T,
+                              a=a, b=b, c=c, d=d)
+
+
+    # Plot
+    plt.plot(t_e, N1_e, label=r'$N_1$ Euler', lw=2, color='blue')
+    plt.plot(t_e, N2_e, label=r'$N_2$ Euler', lw=2, color='red')
+    plt.plot(t_r, N1_r, linestyle=':', lw=3, color='blue', label=r'$N_1$ RK8')
+    plt.plot(t_r, N2_r, linestyle=':', lw=3, color='red', label=r'$N_2$ RK8')
+    plt.title("Lotka-Volterra Prey and Predator Model")
+    plt.xlabel("Time (years)")
+    plt.ylabel("Population/Carrying Cap.")
+    plt.legend(loc='upper left', frameon=True)
+    fig = plt.gcf()
+    fig.tight_layout(rect=[0, 0.08, 1, 1])
+    fig.text(0.98, 0.02, f"Coefficients: a={a}, b={b}, c={c}, d={d}",
+            ha='right', va='bottom')
+
+    plt.show()
+
+    # Phase diagram
+    plt.figure(figsize=(6, 5.2))
+    # Trajectory（Euler & RK8）
+    plt.plot(N1_e, N2_e, color='0.6', lw=2, label='Euler trajectory')
+    plt.plot(N1_r, N2_r, 'b:', lw=2.5, label='RK8 trajectory')
+
+    # Start and end point
+    plt.plot(N1_e[0], N2_e[0], 'ko', ms=6, label='start')
+    plt.plot(N1_e[-1], N2_e[-1], 'ks', ms=6, label='end')
+
+    # Nullclines：dN1/dt=0 -> N2=a/b；dN2/dt=0 -> N1=c/d
+    if b > 0:
+        plt.axhline(y=a/b, color='red', ls='--', lw=1.5, label='dN1/dt=0 (N2=a/b)')
+    if d > 0:
+        plt.axvline(x=c/d, color='blue', ls='--', lw=1.5, label='dN2/dt=0 (N1=c/d)')
+
+    plt.xlabel("Prey $N_1$")
+    plt.ylabel("Predator $N_2$")
+    plt.title("Phase diagram (Prey vs Predator)")
+    plt.xlim(left=0); plt.ylim(bottom=0)
+    plt.legend(loc='best', fontsize=8)
+    plt.tight_layout()
+    plt.show()
