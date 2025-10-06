@@ -229,16 +229,16 @@ def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
         N1_init, N2_init = ni
         t_e, N1_e, N2_e = euler_solve(dNdt_comp, N1_init, N2_init, dT=dt, t_final=T,
                                     a=ai, b=bi, c=ci, d=di)
-        # t_r, N1_r, N2_r = solve_rk8(dNdt_comp, N1_init, N2_init, dT=dt, t_final=T,
-                                # a=ai, b=bi, c=ci, d=di)
+        t_r, N1_r, N2_r = solve_rk8(dNdt_comp, N1_init, N2_init, dT=dt, t_final=T,
+                                a=ai, b=bi, c=ci, d=di)
 
 
         # Plot
         line1, = plt.plot(t_e, N1_e, label=f'$N_1$={N1_init}', lw=2)
         color = line1.get_color()
         plt.plot(t_e, N2_e, label=f'$N_2$={N2_init} ', color = color, lw=2)
-        # plt.plot(t_r, N1_r, linestyle=':', lw=3, label=r'$N_1$ RK8')
-        # plt.plot(t_r, N2_r, linestyle=':', lw=3, label=r'$N_2$ RK8')
+        plt.plot(t_r, N1_r, linestyle=':', lw=3, label=r'$N_1$ RK8')
+        plt.plot(t_r, N2_r, linestyle=':', lw=3, label=r'$N_2$ RK8')
     plt.title("Lotka-Volterra Competition Model")
     plt.xlabel("Time (years)")
     plt.ylabel("Population/Carrying Cap.")
@@ -250,7 +250,7 @@ def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
 
     plt.show()
 
-def prey_and_predator_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.1):
+def prey_and_predator_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.1, ics=None):
     """
     Plot predator and prey time series (Euler & RK8) and the **phase diagram**.
 
@@ -283,6 +283,10 @@ def prey_and_predator_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.1):
     To reproduce plot 15 & 16, run
     prey_and_predator_plot(1, 2, 1.5, 3, n=(0.30, 0.60), T=100, dt=0.02)
 
+    To reproduce plot 17, run
+    prey_and_predator_plot(1, 2, 1, 3, n=(0.30, 0.60), T=100, dt=0.02,ics=[(0.3, 0.3), (0.6, 0.3), (0.9, 0.3)])
+    To plot plot 18, run
+    prey_and_predator_plot(1, 2, 1, 3, n=(0.30, 0.60), T=100, dt=0.02,ics=[(0.3, 0.3), (0.3, 0.6), (0.3, 0.9)])
     """
     N1_init, N2_init = n
     t_e, N1_e, N2_e = euler_solve(dNdt_predprey, N1_init, N2_init, dT=dt, t_final=T,
@@ -330,3 +334,27 @@ def prey_and_predator_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.1):
     plt.legend(loc='best', fontsize=8)
     plt.tight_layout()
     plt.show()
+
+    if ics:
+        plt.figure(figsize=(7.2, 5.2))
+        # draw nullclines once
+        if b > 0: plt.axhline(y=a/b, color='0.3', ls=':', lw=1)
+        if d > 0: plt.axvline(x=c/d, color='0.3', ls=':', lw=1)
+
+        for ic in ics:
+            N10, N20 = ic
+            tr, N1r, N2r = solve_rk8(dNdt_predprey, N10, N20, dT=dt, t_final=T,
+                                     a=a, b=b, c=c, d=d)
+            line, = plt.plot(N1r, N2r, lw=2, label=f"IC={ic} trajectory")
+            # equilibrium marker in matching color
+            eql_x, eql_y = (c/d if d>0 else np.nan), (a/b if b>0 else np.nan)
+            plt.scatter([eql_x], [eql_y], s=40, color=line.get_color(), zorder=3,
+                        label="equilibrium" if ic == ics[0] else None)
+
+        plt.xlabel("Prey N1")
+        plt.ylabel("Predator N2")
+        plt.title("Phase diagram — closed orbits at different radii")
+        plt.xlim(left=0); plt.ylim(bottom=0)
+        plt.legend(loc='best')
+        plt.tight_layout()
+        plt.show()
