@@ -146,6 +146,8 @@ def question_1(dt_comp, dt_pred, max_step=10):
     question_1(dt_comp=2.0, dt_pred=0.20, max_step=10)
     # Finer Euler to reduce error
     question_1(dt_comp=0.2, dt_pred=0.01, max_step=10)
+    For the graph only shows N_1, comment line 179, 180 and 182 and run this code again.
+    question_1(dt_comp=0.2, dt_pred=0.01, max_step=10)
     '''
     N = [0.3, 0.6]
     Tfinal = 100
@@ -217,6 +219,7 @@ def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
     c=[1.0,1.0,1.0]
     d=[0.6,0.6,0.6]
     n=[(0.2,0.8),(0.3,0.6),(0.8,0.2)]
+    competition_plot(a, b, c, d, n, T=100, dt=0.02)
 
     To reproduce plot 8, run:
     a=[1.2,1.0,1.0]
@@ -224,6 +227,7 @@ def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
     c=[0.8,1.5,1.0]
     d=[0.4,0.9,0.9]
     n=[(0.3,0.6),(0.3,0.6),(0.3,0.6)]
+    competition_plot(a, b, c, d, n, T=100, dt=0.02)
     """
     for (ai, bi, ci, di, ni) in zip(a, b, c, d, n):
         N1_init, N2_init = ni
@@ -237,8 +241,8 @@ def competition_plot(a, b, c, d, n=(0.3, 0.6), T=100, dt=0.02):
         line1, = plt.plot(t_e, N1_e, label=f'$N_1$={N1_init}', lw=2)
         color = line1.get_color()
         plt.plot(t_e, N2_e, label=f'$N_2$={N2_init} ', color = color, lw=2)
-        plt.plot(t_r, N1_r, linestyle=':', lw=3, label=r'$N_1$ RK8')
-        plt.plot(t_r, N2_r, linestyle=':', lw=3, label=r'$N_2$ RK8')
+        # plt.plot(t_r, N1_r, linestyle=':', lw=3, label=r'$N_1$ RK8')
+        # plt.plot(t_r, N2_r, linestyle=':', lw=3, label=r'$N_2$ RK8')
     plt.title("Lotka-Volterra Competition Model")
     plt.xlabel("Time (years)")
     plt.ylabel("Population/Carrying Cap.")
