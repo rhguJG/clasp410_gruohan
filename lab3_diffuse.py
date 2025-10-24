@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 plt.style.use('fivethirtyeight')
 
-# Solution to problem 10.3 from fink/matthews
+# Solution to problem 10.3
 sol10p3 = [[0.000000, 0.640000, 0.960000, 0.960000, 0.640000, 0.000000],
            [0.000000, 0.480000, 0.800000, 0.800000, 0.480000, 0.000000],
            [0.000000, 0.400000, 0.640000, 0.640000, 0.400000, 0.000000],
