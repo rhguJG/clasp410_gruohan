@@ -17,7 +17,7 @@ For Q2:
     To generate Fig 4, please run:
     t, x, U, active_layer_depth, permafrost_depth, temp_change, years = Q2(years = 100, show_plot=True)
 For Q3, please run:
-    shifts, actives, pfs, years_used=Q3_summary(start_years=65, tol=0.01, max_years=150, show_any_plots=False)
+    shifts, actives, pfs, years_used=Q3(start_years=65, tol=0.01, max_years=150, show_any_plots=False)
 '''
 
 import numpy as np
