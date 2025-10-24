@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''
 Lab 2: Population Control
-Andrew Inda
 
 This script models Lab 2, solves Lotka-Volterra equations
 for competition and predator-prey systems. Both Euler and
