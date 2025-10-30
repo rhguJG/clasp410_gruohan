@@ -41,7 +41,7 @@ sol10p3 = np.array(sol10p3).transpose()
 
 
 def solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0,
-               upperbound=0, question=1):
+               upperbound=0, question=None):
     '''
     A function for solving the heat equation.
     Apply Neumann boundary conditions such that dU/dx = 0.
@@ -92,10 +92,10 @@ def solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0,
 
     # Create solution matrix; set initial conditions
     U = np.zeros([M, N])
-    if (question == 1):
+    if (question == None):
          U[:, 0] = 4*x - 4*x**2
-    elif (question == 2):
-        U[:, 0 ] = 0
+    elif (question is not None):
+        U[:, 0 ] = question
 
     # Get our "r" coeff:
     r = c2 * (dt/dx**2)
@@ -124,6 +124,10 @@ def solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0,
 
     # Return our pretty solution to the caller:
     return t, x, U
+
+#Make sure Serena's version works:
+t,x,U=solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0, upperbound=0, question=None)
+np.allclose(U, sol10p3, atol=1e-12)
 
 
 def plot_heatsolve(t, x, U, title=None, **kwargs):
