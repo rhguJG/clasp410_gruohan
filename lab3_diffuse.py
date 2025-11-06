@@ -126,8 +126,7 @@ def solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0,
     return t, x, U
 
 #Make sure Serena's version works:
-t,x,U=solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0, upperbound=0, question=None)
-np.allclose(U, sol10p3, atol=1e-12)
+print(solve_heat(xstop=1, tstop=0.2, dx=0.2, dt=0.02, c2=1, lowerbound=0, upperbound=0, question=None))
 
 
 def plot_heatsolve(t, x, U, title=None, **kwargs):
