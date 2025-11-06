@@ -33,20 +33,23 @@ def forest_fire(isize=3, jsize=3, nstep=4, pspread=1.0, pignite=0.0, pbare=0.0):
     forest = np.zeros((nstep, isize, jsize)) + 2
 
     # Set initial conditions for BURNING/INFECTED and BARE/IMMUNE
-    # Start with BURNING/INFECTED:
+
+    # Start with bare land/immune people:
+    loc_bare = rand(isize, jsize) <= pbare
+    forest[0, loc_bare] = 1
+
+    # Set up BURNING/INFECTED:
     if pignite > 0: # Scatter fire randomly:
         loc_ignite = np.zeros((isize, jsize), dtype=bool)
         while loc_ignite.sum() == 0:
             loc_ignite = rand(isize, jsize) <= pignite
         print(f"Starting with {loc_ignite.sum()} points on fire or infected.")
-        forest[0, loc_ignite] = 3
+        # Only set to 3 if the cell is not already 1
+        mask = loc_ignite & (forest[0] != 1)
+        forest[0][mask] = 3
     else:
         # Set initial fire to center [NEED TO UPDATE THIS FOR LAB]:
         forest[0, isize//2, jsize//2] = 3
-
-    # Set bare land/immune people:
-    loc_bare = rand(isize, jsize) <= pbare
-    forest[0, loc_bare] = 1
 
     # Loop through time to advance our fire.
     for k in range(nstep-1):
@@ -78,7 +81,8 @@ def plot_progression(forest):
     ksize, isize, jsize = forest.shape
     npoints = isize * jsize
     
-    # Find all spots that have forests
+    # Find all spots that have forests (or are healthy people)
+    # ...and count them as a function of time.
     loc = forest == 2
     forested = 100 * loc.sum(axis=(1,2)) / npoints
 
