@@ -127,7 +127,7 @@ def plot_forest2d(forest, disease=False):
     # Choose a discrete colormap and the numeric range that maps to it.
     # Setting vmin/vmax fixes consistent colors across figures.
     if disease:
-        forest_cmap = ListedColormap(['darkgrey', 'tan', 'darkgreen', 'crimson'])
+        forest_cmap = ListedColormap(['darkgrey', 'tan', 'forestgreen', 'crimson'])
         vmin, vmax = 0, 3
         label = {0:"Dead", 1:"Immune", 2:"Healthy", 3:"Sick"}
     else:
@@ -216,4 +216,64 @@ def Q2_experiment2():
     ax.legend(loc='upper left', bbox_to_anchor=(1.02, 1), fontsize=9, borderaxespad=0.)
     plt.tight_layout(); plt.subplots_adjust(right=0.78)
 
+    plt.show()
+
+def Q3_experiment1():
+    isize=30; jsize=30; nstep=50
+    pspread=0.60
+    pignite=0.02
+    pbare=0.1 
+    pf_list = [0.00, 0.20, 0.50, 0.80]
+    colors = plt.cm.tab10(np.linspace(0, 1, len(pf_list))) 
+    plt.figure()
+    ax = plt.gca()
+    for idx, pf in enumerate(pf_list):
+        forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=pspread, pignite=pignite, pbare=pbare,
+                            disease=True, pfatal=pf)
+        plot_progression(forest)  # prints t_stop and B_final
+        line_forest = ax.lines[-2]
+        line_bare = ax.lines[-1]
+        line_forest.set_color(colors[idx])
+        line_forest.set_linewidth(2)
+        line_bare.set_color(colors[idx])
+        line_bare.set_linestyle('--')
+        line_bare.set_linewidth(2)
+
+        line_forest.set_label(f"Healthy (Psurvival={1-pf})")
+        line_bare.set_label  (f"Immune-only (Psurvival={1-pf})")
+
+    ax.set_title(f"Disease progression for different mortality(pspread={pspread}, pignite={pignite}, pbare={pbare})", fontsize=14)
+    ax.set_xlabel("Time (steps)")
+    ax.set_ylabel("Percent of population")
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=9, borderaxespad=0.)
+    plt.tight_layout()
+    plt.subplots_adjust(right=0.78)
+    plt.show()
+
+def Q3_experiment2():
+    isize=30; jsize=30; nstep=50
+    pspread=0.60
+    pignite=0.02
+    pfatal=0.30         # Psurvive = 0.70 
+    pb_list = [0.00, 0.10, 0.30, 0.60, 0.80]
+    colors = plt.cm.tab10(np.linspace(0, 1, len(pb_list))) 
+    plt.figure()
+    ax = plt.gca()
+    for idx, pb in enumerate(pb_list):
+        forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=pspread, pignite=pignite, pbare=pb,
+                            disease=True, pfatal=pfatal)
+        plot_progression(forest)  # prints t_stop and B_final
+        line_forest = ax.lines[-2]; line_bare = ax.lines[-1]
+        line_forest.set_color(colors[idx]); line_forest.set_linewidth(2)
+        line_bare.set_color(colors[idx]);   line_bare.set_linestyle('--'); line_bare.set_linewidth(2)
+
+        line_forest.set_label(f"Healthy (pbare={pb})")
+        line_bare.set_label  (f"Immune-only (pbare={pb})")
+
+    ax.set_title(f"Disease progression for different early vaccine rates (pspread={pspread}, pignite={pignite}, pfatal={pfatal})", fontsize=14)
+    ax.set_xlabel("Time (steps)")
+    ax.set_ylabel("Percent of population")
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=9, borderaxespad=0.)
+    plt.tight_layout()
+    plt.subplots_adjust(right=0.78)
     plt.show()
