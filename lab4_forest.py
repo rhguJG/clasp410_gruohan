@@ -3,6 +3,19 @@
 '''
 A module for burning forests and making pestilence.
 What a happy coding time.
+For generate Figure 1-3, please run:
+forest=forest_fire(isize=3, jsize=3, nstep=3)
+plot_forest2d(forest)
+plt.show()
+For generate Figure 4-6, please run:
+forest=forest_fire(isize=3, jsize=5, nstep=3)
+plot_forest2d(forest)
+plt.show()
+
+For Figure 7, run Q2_experiment1()
+For Figure 8, run Q2_experiment2()
+For Figure 9, run Q3_experiment1()
+For Figure 10, run Q3_experiment2()
 '''
 
 import numpy as np
@@ -165,29 +178,69 @@ def plot_forest2d(forest, disease=False):
         ax.set_title(f"{'Disease' if disease else 'Forest'} Status (iStep={k})")
 
 def Q2_experiment1():
+    """
+    Experiment 1 (Question 2): Vary the probability of spread (pspread)
+    while holding initial ignition and bareness fixed.
+
+    Design choices
+    --------------
+    - "pignite=0.02" seeds multiple small starts (avoids a single unlucky/lucky spark).
+    - "pbare=0.10" keeps some gaps so that low pspread runs can extinguish,
+      yet still allows large runs at higher pspread.
+    - For each pspread we plot a pair of lines using a shared color:
+        solid = Forested(%) over time,
+        dashed = Bare(%) over time.
+      This pairing makes "less forested / more bare" visually obvious.
+    """
     isize=30; jsize=30; nstep=40; pignite=0.02; pbare=0.1
+    # sweep of spread probabilities
     ps_list = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
     colors = plt.cm.tab10(np.linspace(0, 1, len(ps_list)))
+
     plt.figure()
     ax = plt.gca()
+
     for idx, ps in enumerate(ps_list):
+        # Run simulation
         forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=ps, pignite=pignite, pbare=pbare)
+
+        # Plot raw time series and capture the last two artists added to axes
         plot_progression(forest)
+        # solid Forested
         line_forest = ax.lines[-2]
+        # dashed Bare
         line_bare = ax.lines[-1]
+
+        # Style the pair with the same color; dashed for Bare
         line_forest.set_color(colors[idx])
         line_forest.set_linewidth(2)
         line_bare.set_color(colors[idx])  
         line_bare.set_linestyle('--')  
         line_bare.set_linewidth(2)
+
+        # Legend labels include parameter value
         line_forest.set_label(f"Forested (pspread={ps})")
         line_bare.set_label(f"Bare (pspread={ps})")
-    plt.title(f"Progression (pignite={pignite}, pbare={pbare})",fontsize=16)
+
+    plt.title(f"Progression for different spread rate (pignite={pignite}, pbare={pbare})",fontsize=16)
     plt.xlabel("Time (steps)"); plt.ylabel("Percent Total Forest")
-    plt.legend(fontsize=9)
+
+    # Put the legend outside to keep the plot area uncluttered
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=12, borderaxespad=0.)
+    plt.tight_layout(); plt.subplots_adjust(right=0.78)
     plt.show()
 
 def Q2_experiment2():
+    """
+    Experiment 2 (Question 2): Vary the initial bareness (pbare)
+    while holding spread probability and ignition fixed.
+
+    Interpretation
+    --------------
+    Higher "pbare" pre-seeds more non-forest gaps. In a fire metaphor,
+    these are firebreaks; in an SIR metaphor, these are immune people.
+    We again plot a color-matched pair (solid=Forested, dashed=Bare).
+    """
     isize=30; jsize=30; nstep=40; pspread=0.60; pignite=0.02
     pb_list = [0.0, 0.1, 0.3, 0.6, 0.8, 1.0]
     colors = plt.cm.tab10(np.linspace(0, 1, len(pb_list)))
@@ -196,84 +249,142 @@ def Q2_experiment2():
     ax = plt.gca()
 
     for idx, pb in enumerate(pb_list):
+        # Run simulation
         forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=pspread, pignite=pignite, pbare=pb)
-        plot_progression(forest)             # adds 2 lines: Forested then Bare/Burnt
+        plot_progression(forest)
         line_forest = ax.lines[-2]
         line_bare   = ax.lines[-1]
 
-        # same color for the pair; Forested dashed, Bare dotted
-        line_forest.set_color(colors[idx]);line_forest.set_linewidth(2)
-        line_bare.set_color(colors[idx]);   line_bare.set_linestyle('--');    line_bare.set_linewidth(2)
+        # Same color for the pair; Forested dashed, Bare dotted
+        line_forest.set_color(colors[idx])
+        line_forest.set_linewidth(2)
 
+        # Style the pair with the same color; dashed for Bare
+        line_bare.set_color(colors[idx])
+        line_bare.set_linestyle('--')
+        line_bare.set_linewidth(2)
+
+        # Legend labels include parameter value
         line_forest.set_label(f"Forested (pbare={pb})")
         line_bare.set_label(f"Bare (pbare={pb})")
 
-    ax.set_title(f"Progression (pspread={pspread}, pignite={pignite})", fontsize=16)
+    ax.set_title(f"Progression for different bareness (pspread={pspread}, pignite={pignite})", fontsize=18)
     ax.set_xlabel("Time (steps)")
     ax.set_ylabel("Percent Total Forest")
 
-    # legend outside (optional)
-    ax.legend(loc='upper left', bbox_to_anchor=(1.02, 1), fontsize=9, borderaxespad=0.)
+    # Put the legend outside to keep the plot area uncluttered
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=12, borderaxespad=0.)
     plt.tight_layout(); plt.subplots_adjust(right=0.78)
 
     plt.show()
 
 def Q3_experiment1():
+    """
+    Experiment 1 (Question 3): Disease mode — vary mortality "pfatal"
+    and report curves in terms of survival Psurvival = 1 - pfatal.
+
+    Settings
+    --------
+    - Fixed transmission: pspread=0.60 (moderately contagious)
+    - Scattered starts:   pignite=0.02 (reliable ignition without swamping)
+    - Early vaccine:      pbare=0.10 (10% immune at t=0)
+    - We present paired curves per survival level:
+        solid  = Healthy (state==2),
+        dashed = Immune-only (state==1).
+      Deaths are implicit and can be inferred as 100 - Healthy - Immune.
+    """
     isize=30; jsize=30; nstep=50
     pspread=0.60
     pignite=0.02
     pbare=0.1 
+
+    # mortality values
     pf_list = [0.00, 0.20, 0.50, 0.80]
     colors = plt.cm.tab10(np.linspace(0, 1, len(pf_list))) 
     plt.figure()
     ax = plt.gca()
     for idx, pf in enumerate(pf_list):
+        # Run simulations
         forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=pspread, pignite=pignite, pbare=pbare,
                             disease=True, pfatal=pf)
-        plot_progression(forest)  # prints t_stop and B_final
+        psurvive = 1.0 - pf
+        # Prints t_stop and B_final
+        plot_progression(forest)
+
+        # Healthy
         line_forest = ax.lines[-2]
+        # Immune-Only
         line_bare = ax.lines[-1]
+
+        # Same color for the pair
         line_forest.set_color(colors[idx])
         line_forest.set_linewidth(2)
         line_bare.set_color(colors[idx])
         line_bare.set_linestyle('--')
         line_bare.set_linewidth(2)
 
-        line_forest.set_label(f"Healthy (Psurvival={1-pf})")
-        line_bare.set_label  (f"Immune-only (Psurvival={1-pf})")
+        # Legend labels include parameter value
+        line_forest.set_label(f"Healthy (Psurvival={psurvive:.2f})")
+        line_bare.set_label  (f"Immune-only (Psurvival={psurvive:.2f})")
 
     ax.set_title(f"Disease progression for different mortality(pspread={pspread}, pignite={pignite}, pbare={pbare})", fontsize=14)
     ax.set_xlabel("Time (steps)")
     ax.set_ylabel("Percent of population")
-    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=9, borderaxespad=0.)
+
+    # Put the legend outside to keep the plot area uncluttered
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=10, borderaxespad=0.)
     plt.tight_layout()
     plt.subplots_adjust(right=0.78)
     plt.show()
 
 def Q3_experiment2():
+    """
+    Experiment 2 (Question 3): Disease mode — vary early vaccination pbare at a fixed mortality (pfatal).
+
+    Readout
+    -------
+    - solid  = Healthy (never infected)
+    - dashed = Immune-only (recovered)
+    - implied deaths = 100 - Healthy - Immune
+    Increasing pbare removes connections in the contact network, so curves
+    flatten sooner and the Immune-only plateau rises with coverage.
+    """
     isize=30; jsize=30; nstep=50
     pspread=0.60
     pignite=0.02
-    pfatal=0.30         # Psurvive = 0.70 
+    pfatal=0.30
     pb_list = [0.00, 0.10, 0.30, 0.60, 0.80]
     colors = plt.cm.tab10(np.linspace(0, 1, len(pb_list))) 
     plt.figure()
     ax = plt.gca()
     for idx, pb in enumerate(pb_list):
+        # Run simulations
         forest = forest_fire(isize=isize, jsize=jsize, nstep=nstep, pspread=pspread, pignite=pignite, pbare=pb,
                             disease=True, pfatal=pfatal)
-        plot_progression(forest)  # prints t_stop and B_final
-        line_forest = ax.lines[-2]; line_bare = ax.lines[-1]
-        line_forest.set_color(colors[idx]); line_forest.set_linewidth(2)
-        line_bare.set_color(colors[idx]);   line_bare.set_linestyle('--'); line_bare.set_linewidth(2)
+        # prints t_stop and B_final
+        plot_progression(forest) 
 
+        # Healthy
+        line_forest = ax.lines[-2]
+        # Immune-Only
+        line_bare = ax.lines[-1]
+
+        # Same color for the pair
+        line_forest.set_color(colors[idx])
+        line_forest.set_linewidth(2)
+        line_bare.set_color(colors[idx])
+        line_bare.set_linestyle('--')
+        line_bare.set_linewidth(2)
+
+         # Legend labels include parameter value
         line_forest.set_label(f"Healthy (pbare={pb})")
         line_bare.set_label  (f"Immune-only (pbare={pb})")
 
     ax.set_title(f"Disease progression for different early vaccine rates (pspread={pspread}, pignite={pignite}, pfatal={pfatal})", fontsize=14)
     ax.set_xlabel("Time (steps)")
     ax.set_ylabel("Percent of population")
-    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=9, borderaxespad=0.)
+    # Put the legend outside to keep the plot area uncluttered
+    ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=10, borderaxespad=0.)
     plt.tight_layout()
     plt.subplots_adjust(right=0.78)
     plt.show()
