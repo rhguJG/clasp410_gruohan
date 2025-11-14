@@ -7,6 +7,7 @@ For generate Figure 1-3, please run:
 forest=forest_fire(isize=3, jsize=3, nstep=3)
 plot_forest2d(forest)
 plt.show()
+
 For generate Figure 4-6, please run:
 forest=forest_fire(isize=3, jsize=5, nstep=3)
 plot_forest2d(forest)
@@ -65,7 +66,7 @@ def forest_fire(isize=3, jsize=3, nstep=4, pspread=1.0, pignite=0.0, pbare=0.0, 
         mask = loc_ignite & (forest[0] != 1)
         forest[0][mask] = 3
     else:
-        # Set initial fire to center [NEED TO UPDATE THIS FOR LAB]:
+        # Set initial fire to center
         forest[0, isize//2, jsize//2] = 3
 
     # Loop through time to advance our fire.
@@ -134,9 +135,11 @@ def plot_progression(forest):
     print(f"t_stop={t_stop}, B_final={B_final:.1f}%")
 
 def plot_forest2d(forest, disease=False):
-    '''Plot a 2D forest grid.
-    Values: wildfire → 1=Bare, 2=Forest, 3=FIRE!
-            disease  → 0=Dead, 1=Immune, 2=Healthy, 3=Sick'''
+    '''
+    Plot a 2D forest grid.
+    Values: wildfire: 1=Bare, 2=Forest, 3=FIRE!
+            disease: 0=Dead, 1=Immune, 2=Healthy, 3=Sick
+    '''
     # Choose a discrete colormap and the numeric range that maps to it.
     # Setting vmin/vmax fixes consistent colors across figures.
     if disease:
@@ -178,12 +181,12 @@ def plot_forest2d(forest, disease=False):
         ax.set_title(f"{'Disease' if disease else 'Forest'} Status (iStep={k})")
 
 def Q2_experiment1():
-    """
+    '''
     Experiment 1 (Question 2): Vary the probability of spread (pspread)
     while holding initial ignition and bareness fixed.
 
-    Design choices
-    --------------
+    Settings
+    --------
     - "pignite=0.02" seeds multiple small starts (avoids a single unlucky/lucky spark).
     - "pbare=0.10" keeps some gaps so that low pspread runs can extinguish,
       yet still allows large runs at higher pspread.
@@ -191,7 +194,7 @@ def Q2_experiment1():
         solid = Forested(%) over time,
         dashed = Bare(%) over time.
       This pairing makes "less forested / more bare" visually obvious.
-    """
+    '''
     isize=30; jsize=30; nstep=40; pignite=0.02; pbare=0.1
     # sweep of spread probabilities
     ps_list = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
@@ -233,16 +236,22 @@ def Q2_experiment1():
     plt.show()
 
 def Q2_experiment2():
-    """
+    '''
     Experiment 2 (Question 2): Vary the initial bareness (pbare)
     while holding spread probability and ignition fixed.
 
-    Interpretation
-    --------------
-    Higher "pbare" pre-seeds more non-forest gaps. In a fire metaphor,
-    these are firebreaks. In an SIR metaphor, these are immune people.
-    We again plot a color-matched pair (solid=Forested, dashed=Bare).
-    """
+    Settings
+    --------
+    - pspread = 0.60 sets a moderately contagious spread once fire starts.
+    - pignite = 0.02 provides scattered ignitions without swamping the grid.
+    - pbare sweeps from 0.0 to 1.0, pre-seeding non-forest gaps:
+        low  pbare: almost continuous forest, fire can run far,
+        high pbare: many breaks, runs tend to die out quickly.
+    - For each pbare we plot a matched pair of lines:
+        solid  = Forested(%) over time,
+        dashed = Bare(%) over time.
+      As bareness increases, the solid curves shrink and the dashed curves rise.
+    '''
     isize=30; jsize=30; nstep=40; pspread=0.60; pignite=0.02
     pb_list = [0.0, 0.1, 0.3, 0.6, 0.8, 1.0]
     colors = plt.cm.tab10(np.linspace(0, 1, len(pb_list)))
@@ -282,20 +291,21 @@ def Q2_experiment2():
     plt.show()
 
 def Q3_experiment1():
-    """
-    Experiment 1 (Question 3): Disease mode — vary mortality "pfatal"
-    and report curves in terms of survival Psurvival = 1 - pfatal.
+    '''
+    Experiment 1 (Question 3): Disease mode — vary mortality (pfatal)
+    and interpret curves in terms of survival Psurvival = 1 - pfatal.
 
     Settings
-    --------
-    - Fixed transmission: pspread=0.60 (moderately contagious)
-    - Scattered starts:   pignite=0.02 (reliable ignition without swamping)
-    - Early vaccine:      pbare=0.10 (10% immune at t=0)
-    - We present paired curves per survival level:
-        solid  = Healthy (state==2),
-        dashed = Immune-only (state==1).
-      Deaths are implicit and can be inferred as 100 - Healthy - Immune.
-    """
+    --------------
+    - pspread = 0.60 fixes a moderately contagious disease.
+    - pignite = 0.02 seeds scattered initial infections across the grid.
+    - pbare   = 0.10 acts as early vaccination (10% immune at t = 0).
+    - We sweep pfatal from 0.00 to 0.80 and report using Psurvival = 1 - pfatal.
+    - For each survival level we plot a color-matched pair:
+        solid  = Healthy (state == 2, never infected),
+        dashed = Immune-only (state == 1, recovered).
+      Deaths are implicit and can be inferred as 100% - Healthy - Immune.
+    '''
     isize=30; jsize=30; nstep=50
     pspread=0.60
     pignite=0.02
@@ -341,17 +351,24 @@ def Q3_experiment1():
     plt.show()
 
 def Q3_experiment2():
-    """
-    Experiment 2 (Question 3): Disease mode — vary early vaccination pbare at a fixed mortality (pfatal).
+   '''
+    Experiment 2 (Question 3): Disease mode — vary early vaccination (pbare)
+    at a fixed mortality (pfatal).
 
-    Readout
-    -------
-    - solid  = Healthy (never infected)
-    - dashed = Immune-only (recovered)
-    - implied deaths = 100 - Healthy - Immune
-    Increasing pbare removes connections in the contact network, so curves
-    flatten sooner and the Immune-only plateau rises with coverage.
-    """
+    Settings
+    --------------
+    - pspread = 0.60 keeps contagion level the same across runs.
+    - pignite = 0.02 sets scattered initial infections.
+    - pfatal  = 0.30 fixes the chance that a sick individual dies
+      (Psurvival = 0.70 for those infected).
+    - pbare sweeps vaccination coverage at t = 0, removing contacts
+      and breaking chains in the infection network.
+    - For each pbare we plot a color-matched pair:
+        solid  = Healthy (never infected),
+        dashed = Immune-only (recovered).
+      Implied deaths are 100% - Healthy - Immune, and higher pbare
+      tends to flatten curves sooner and raise the Immune plateau.
+    '''
     isize=30; jsize=30; nstep=50
     pspread=0.60
     pignite=0.02
@@ -381,11 +398,12 @@ def Q3_experiment2():
 
          # Legend labels include parameter value
         line_forest.set_label(f"Healthy (pbare={pb})")
-        line_bare.set_label  (f"Immune-only (pbare={pb})")
+        line_bare.set_label(f"Immune-only (pbare={pb})")
 
     ax.set_title(f"Disease progression for different early vaccine rates (pspread={pspread}, pignite={pignite}, pfatal={pfatal})", fontsize=14)
     ax.set_xlabel("Time (steps)", fontsize=12)
     ax.set_ylabel("Percent of population", fontsize=12)
+
     # Put the legend outside to keep the plot area uncluttered
     ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=10, borderaxespad=0.)
     plt.tight_layout()
