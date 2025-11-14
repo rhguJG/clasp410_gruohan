@@ -211,7 +211,7 @@ def Q2_experiment1():
         # dashed Bare
         line_bare = ax.lines[-1]
 
-        # Style the pair with the same color; dashed for Bare
+        # Style the pair with the same color
         line_forest.set_color(colors[idx])
         line_forest.set_linewidth(2)
         line_bare.set_color(colors[idx])  
@@ -223,11 +223,13 @@ def Q2_experiment1():
         line_bare.set_label(f"Bare (pspread={ps})")
 
     plt.title(f"Progression for different spread rate (pignite={pignite}, pbare={pbare})",fontsize=16)
-    plt.xlabel("Time (steps)"); plt.ylabel("Percent Total Forest")
+    plt.xlabel("Time (steps)", fontsize=12)
+    plt.ylabel("Percent Total Forest",fontsize=12)
 
     # Put the legend outside to keep the plot area uncluttered
     ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=12, borderaxespad=0.)
-    plt.tight_layout(); plt.subplots_adjust(right=0.78)
+    plt.tight_layout()
+    plt.subplots_adjust(right=0.78)
     plt.show()
 
 def Q2_experiment2():
@@ -238,7 +240,7 @@ def Q2_experiment2():
     Interpretation
     --------------
     Higher "pbare" pre-seeds more non-forest gaps. In a fire metaphor,
-    these are firebreaks; in an SIR metaphor, these are immune people.
+    these are firebreaks. In an SIR metaphor, these are immune people.
     We again plot a color-matched pair (solid=Forested, dashed=Bare).
     """
     isize=30; jsize=30; nstep=40; pspread=0.60; pignite=0.02
@@ -255,11 +257,11 @@ def Q2_experiment2():
         line_forest = ax.lines[-2]
         line_bare   = ax.lines[-1]
 
-        # Same color for the pair; Forested dashed, Bare dotted
+        # Same color for the pair
         line_forest.set_color(colors[idx])
         line_forest.set_linewidth(2)
 
-        # Style the pair with the same color; dashed for Bare
+        # Style the pair with the same color
         line_bare.set_color(colors[idx])
         line_bare.set_linestyle('--')
         line_bare.set_linewidth(2)
@@ -269,12 +271,13 @@ def Q2_experiment2():
         line_bare.set_label(f"Bare (pbare={pb})")
 
     ax.set_title(f"Progression for different bareness (pspread={pspread}, pignite={pignite})", fontsize=18)
-    ax.set_xlabel("Time (steps)")
-    ax.set_ylabel("Percent Total Forest")
+    ax.set_xlabel("Time (steps)", fontsize=12)
+    ax.set_ylabel("Percent Total Forest", fontsize=12)
 
     # Put the legend outside to keep the plot area uncluttered
     ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=12, borderaxespad=0.)
-    plt.tight_layout(); plt.subplots_adjust(right=0.78)
+    plt.tight_layout()
+    plt.subplots_adjust(right=0.78)
 
     plt.show()
 
@@ -328,8 +331,8 @@ def Q3_experiment1():
         line_bare.set_label  (f"Immune-only (Psurvival={psurvive:.2f})")
 
     ax.set_title(f"Disease progression for different mortality(pspread={pspread}, pignite={pignite}, pbare={pbare})", fontsize=14)
-    ax.set_xlabel("Time (steps)")
-    ax.set_ylabel("Percent of population")
+    ax.set_xlabel("Time (steps)", fontsize=12)
+    ax.set_ylabel("Percent of population", fontsize=12)
 
     # Put the legend outside to keep the plot area uncluttered
     ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=10, borderaxespad=0.)
@@ -381,8 +384,8 @@ def Q3_experiment2():
         line_bare.set_label  (f"Immune-only (pbare={pb})")
 
     ax.set_title(f"Disease progression for different early vaccine rates (pspread={pspread}, pignite={pignite}, pfatal={pfatal})", fontsize=14)
-    ax.set_xlabel("Time (steps)")
-    ax.set_ylabel("Percent of population")
+    ax.set_xlabel("Time (steps)", fontsize=12)
+    ax.set_ylabel("Percent of population", fontsize=12)
     # Put the legend outside to keep the plot area uncluttered
     ax.legend(loc='upper left', bbox_to_anchor=(1.02,1), fontsize=10, borderaxespad=0.)
     plt.tight_layout()
