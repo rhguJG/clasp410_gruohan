@@ -187,8 +187,8 @@ def Q2_experiment1():
 
     Settings
     --------
-    - "pignite=0.02" seeds multiple small starts (avoids a single unlucky/lucky spark).
-    - "pbare=0.10" keeps some gaps so that low pspread runs can extinguish,
+    - "pignite = 0.02" seeds multiple small starts (avoids a single unlucky/lucky spark).
+    - "pbare = 0.10" keeps some gaps so that low pspread runs can extinguish,
       yet still allows large runs at higher pspread.
     - For each pspread we plot a pair of lines using a shared color:
         solid = Forested(%) over time,
@@ -299,10 +299,10 @@ def Q3_experiment1():
     --------------
     - pspread = 0.60 fixes a moderately contagious disease.
     - pignite = 0.02 seeds scattered initial infections across the grid.
-    - pbare   = 0.10 acts as early vaccination (10% immune at t = 0).
+    - pbare = 0.10 acts as early vaccination (10% immune at t = 0).
     - We sweep pfatal from 0.00 to 0.80 and report using Psurvival = 1 - pfatal.
     - For each survival level we plot a color-matched pair:
-        solid  = Healthy (state == 2, never infected),
+        solid = Healthy (state == 2, never infected),
         dashed = Immune-only (state == 1, recovered).
       Deaths are implicit and can be inferred as 100% - Healthy - Immune.
     '''
@@ -359,12 +359,12 @@ def Q3_experiment2():
     --------------
     - pspread = 0.60 keeps contagion level the same across runs.
     - pignite = 0.02 sets scattered initial infections.
-    - pfatal  = 0.30 fixes the chance that a sick individual dies
+    - pfatal = 0.30 fixes the chance that a sick individual dies
       (Psurvival = 0.70 for those infected).
     - pbare sweeps vaccination coverage at t = 0, removing contacts
       and breaking chains in the infection network.
     - For each pbare we plot a color-matched pair:
-        solid  = Healthy (never infected),
+        solid = Healthy (never infected),
         dashed = Immune-only (recovered).
       Implied deaths are 100% - Healthy - Immune, and higher pbare
       tends to flatten curves sooner and raise the Immune plateau.
