@@ -2,6 +2,10 @@
 
 '''
 Lab 5: Snowball Earth.
+For question 1, run problem1(); plt.show()
+For question 2, run problem2(), then run problem2_sensitivity(best_lam=31.58, best_emiss=0.71)
+For question 3, run problem3(31.58,0.71)
+For question 4, run problem4(lam=31.58, emiss=0.71)
 '''
 
 import numpy as np
@@ -282,3 +286,238 @@ def test_functions():
         print('\tFAILED!')
         print(f"Expected: {dlat_correct}, {lats_correct}")
         print(f"Got: {gen_grid(5)}")
+
+def problem2():
+    '''
+    Tune the model parameters (diffusivity and emissivity) to match
+    the modern warm Earth temperature profile.
+    '''
+
+    # Get grid and the target data.
+    dlat, lats = gen_grid()
+    temp_target = temp_warm(lats)
+
+    # Define the parameter space to search.
+    lam_values = np.linspace(0, 150, 20)      
+    emiss_values = np.linspace(0.0, 1.0, 8)  
+
+    # List to store our error metrics.
+    results = []
+
+    for lam in lam_values:
+        for emiss in emiss_values:
+
+            # Run the model with current parameter guess.
+            _, temp_model = snowball_earth(
+                lam=lam,
+                emiss=emiss,
+                apply_spherecorr=True,
+                apply_insol=True,
+                albice=.3, albgnd=.3  # Constant albedo for tuning
+            )
+
+            # Calculate the Root Mean Square Error (RMSE).
+            rmse = np.sqrt(np.mean((temp_model - temp_target)**2))
+
+            results.append((rmse, lam, emiss))
+
+    # Sort results by error and pick the winner.
+    results.sort(key=lambda x: x[0])
+    best_rmse, best_lam, best_emiss = results[0]
+
+    print("Problem 2 Results")
+    print(f"Best diffusivity λ: {best_lam:.2f}")
+    print(f"Best emissivity ε: {best_emiss:.2f}")
+    print(f"RMSE: {best_rmse:.4f}")
+
+    # Run one last time with best params to make a plot.
+    _, best_temp = snowball_earth(
+        lam=best_lam,
+        emiss=best_emiss,
+        apply_spherecorr=True,
+        apply_insol=True,
+        albice=.3, albgnd=.3
+    )
+
+    plt.figure()
+    plt.plot(lats-90, temp_target, label='Target Warm Earth')
+    plt.plot(lats-90, best_temp, '--', label='Best-fit Model')
+    plt.xlabel('Latitude')
+    plt.ylabel('Temperature (°C)')
+    plt.title('Best Parameter Fit')
+    plt.legend()
+    plt.show()
+
+def problem2_sensitivity(best_lam=100.0, best_emiss=1.0):
+    '''
+    Investigate how individual parameters (diffusivity and emissivity)
+    alter the temperature profile shape and magnitude.
+    
+    Parameters
+    ----------
+    best_lam : float, optional 
+        The tuned diffusivity value (default=100.0).
+    best_emiss : float, optional 
+        The tuned emissivity value (default=1.0).
+    '''
+    dlat, lats = gen_grid()
+    temp_target = temp_warm(lats)
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    
+    # Test sensitivity to Diffusivity (Lambda).
+    test_lams = [0, 50, 150] 
+    ax1.plot(lats-90, temp_target, 'k--', label='Target (Warm Earth)')
+    
+    for lam in test_lams:
+        _, temp = snowball_earth(lam=lam, emiss=best_emiss, 
+                                 apply_spherecorr=True, apply_insol=True, 
+                                 albice=.3, albgnd=.3)
+        ax1.plot(lats-90, temp, label=rf'$\lambda={lam}$')
+    
+    # Label the first panel.
+    ax1.set_title(rf'Sensitivity to Diffusivity ($\epsilon={best_emiss}$)')
+    ax1.set_xlabel('Latitude')
+    ax1.set_ylabel('Temp (C)')
+    ax1.legend()
+    
+    # Test sensitivity to Emissivity.
+    test_emiss = [0.4, 0.7, 1.0] 
+    ax2.plot(lats-90, temp_target, 'k--', label='Target')
+    
+    for em in test_emiss:
+        _, temp = snowball_earth(lam=best_lam, emiss=em, 
+                                 apply_spherecorr=True, apply_insol=True, 
+                                 albice=.3, albgnd=.3)
+        ax2.plot(lats-90, temp, label=rf'$\epsilon={em}$')
+        
+    # Label the second panel.
+    ax2.set_title(rf'Sensitivity to Emissivity ($\lambda={best_lam}$)')
+    ax2.set_xlabel('Latitude')
+    ax2.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
+def problem3(lam=50., emiss=0.80):
+    '''
+    Test the stability of climate states under extreme initial conditions
+    (Hot Start vs Cold Start) and a Flash Freeze scenario.
+    '''
+    # Get grid.
+    dlat, lats = gen_grid()
+
+    # Define extreme initial states.
+    hot_init  = np.full_like(lats,  60.0, dtype=float)
+    cold_init = np.full_like(lats, -60.0, dtype=float)
+
+    # Run model starting from Hot Earth.
+    _, T_hot = snowball_earth(
+        lam=lam, emiss=emiss,
+        init_cond=hot_init,
+        apply_spherecorr=True, apply_insol=True,
+        albice=0.6, albgnd=0.3
+    )
+
+    # Run model starting from Cold Earth.
+    _, T_cold = snowball_earth(
+        lam=lam, emiss=emiss,
+        init_cond=cold_init,
+        apply_spherecorr=True, apply_insol=True,
+        albice=0.6, albgnd=0.3
+    )
+
+    # Create a Flash Freeze scenario.
+    # First, spin up a warm steady state.
+    _, T_warm_steadystate = snowball_earth(
+        lam=lam, emiss=emiss,
+        init_cond=temp_warm,                 
+        apply_spherecorr=True, apply_insol=True,
+        albice=0.3, albgnd=0.3               
+    )
+    # Then force albedo to ice everywhere instantly.
+    _, T_flash = snowball_earth(
+        lam=lam, emiss=emiss,
+        init_cond=T_warm_steadystate,        
+        apply_spherecorr=True, apply_insol=True,
+        albice=0.6, albgnd=0.6               
+    )
+
+    # Calculate area-weighted global means.
+    weights = np.sin(np.radians(lats))       
+    def global_mean(T): 
+        return np.average(T, weights=weights)
+
+    print("Problem 3 (Equilibrium Global-Mean Temp, °C)")
+    print(f"Hot Earth init  : {global_mean(T_hot):6.2f}")
+    print(f"Cold Earth init : {global_mean(T_cold):6.2f}")
+    print(f"Flash freeze    : {global_mean(T_flash):6.2f}")
+
+    # Plot the resulting equilibrium profiles.
+    plt.figure()
+    plt.plot(lats-90, T_hot,  label='Hot init (+60°C), dynamic albedo')
+    plt.plot(lats-90, T_cold, label='Cold init (-60°C), dynamic albedo')
+    plt.plot(lats-90, T_flash,label='Flash-freeze (albedo set to 0.6)')
+    plt.xlabel('Latitude')
+    plt.ylabel('Temperature (°C)')
+    plt.title('Equilibrium Profiles')
+    plt.legend()
+    plt.show()
+
+def problem4(lam=50., emiss=0.80, S0=1370., g0=0.4, g1=1.4, dg=0.05):
+    '''
+    Explore the hysteresis loop by slowly varying the solar luminosity
+    multiplier (gamma) forward and backward.
+    '''
+    # Set up grid and weighting factors.
+    dlat, lats = gen_grid()
+    weights = np.sin(np.radians(lats))
+    def global_mean(T): return np.average(T, weights=weights)
+
+    # Helper function to run a specific solar forcing state.
+    def run_gamma(gamma, init_T):
+        _, T = snowball_earth(
+            lam=lam, emiss=emiss,
+            init_cond=init_T,
+            apply_spherecorr=True, apply_insol=True,
+            albice=0.6, albgnd=0.3,        
+            solar=S0 * gamma               
+        )
+        return T
+
+    # Perform the Forward sweep (increasing solar flux).
+    gam_fwd = np.round(np.arange(g0, g1 + 1e-9, dg), 3)
+    means_fwd = []
+    
+    # Start cold.
+    T_prev = np.full_like(lats, -60.0, dtype=float)
+    for g in gam_fwd:
+        T_prev = run_gamma(g, T_prev)
+        means_fwd.append(global_mean(T_prev))
+
+    # Perform the Backward sweep (decreasing solar flux).
+    gam_bwd = np.round(np.arange(g1, g0 - 1e-9, -dg), 3)
+    means_bwd = []
+    
+    # Continue from the last hot state.
+    for g in gam_bwd:
+        T_prev = run_gamma(g, T_prev)
+        means_bwd.append(global_mean(T_prev))
+
+    # Visualize the hysteresis loop.
+    plt.figure()
+    plt.plot(gam_fwd, means_fwd, label='Forward (g ↑)', linewidth=3)
+    plt.plot(gam_bwd, means_bwd, '--', label='Backward (g ↓)', linewidth=3)
+    plt.xlabel(r'Solar multiplier $\gamma$')
+    plt.ylabel('Global-mean Temperature (°C)')
+    plt.title('Hysteresis of Global Temperature vs Solar Forcing')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+    # Print summary stats.
+    print("Problem 4 summary")
+    print(f"Min/Max forward mean T: {min(means_fwd):.2f} / {max(means_fwd):.2f} °C")
+    print(f"Min/Max backward mean T: {min(means_bwd):.2f} / {max(means_bwd):.2f} °C")
+    
+    return (gam_fwd, np.array(means_fwd)), (gam_bwd, np.array(means_bwd))
