@@ -400,7 +400,6 @@ def question_1():
     ax.legend()
     ax.grid(alpha=0.3)
 
-    print(f"[Q1] h_crit={hcrit:.4f} m,  modeled={h_model:.4f} m,  error={err_pct:.2f}%")
     return sim, hcrit
 
 
